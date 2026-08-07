@@ -1,0 +1,85 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "BME680 Dashboard";
+}
+
+<h1>Sensor Readings</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <p style="color:red">@Model.ErrorMessage</p>
+}
+else
+{
+    <ul>
+        <li>Temperature: @(Model.TemperatureC?.ToString("F1") ?? "N/A") °C</li>
+        <li>Pressure: @(Model.PressureHpa?.ToString("F1") ?? "N/A") hPa</li>
+        <li>Humidity: @(Model.HumidityPercent?.ToString("F1") ?? "N/A") %</li>
+        <p><small>Last updated: @DateTime.Now.ToString("HH:mm:ss")</small></p>
+    </ul>
+
+    <h1>Sensor Readings</h1>
+
+    <ul>
+        <li>Temperature: <span id="temperature">@(Model.TemperatureC?.ToString("F1") ?? "N/A")</span> °C</li>
+        <li>Pressure: <span id="pressure">@(Model.PressureHpa?.ToString("F1") ?? "N/A")</span> hPa</li>
+        <li>Humidity: <span id="humidity">@(Model.HumidityPercent?.ToString("F1") ?? "N/A")</span> %</li>
+    </ul>
+
+    <p><small>Last updated: <span id="last-updated">@DateTime.Now.ToString("HH:mm:ss")</span></small></p>
+
+    <label for="refresh-interval">Refresh every:</label>
+    <select id="refresh-interval">
+        <option value="5000">5 seconds</option>
+        <option value="10000" selected>10 seconds</option>
+        <option value="30000">30 seconds</option>
+        <option value="60000">1 minute</option>
+    </select>
+
+
+}
+
+
+
+@* var reading = new SensorReading
+{
+TimestampUtc = DateTime.UtcNow,
+TemperatureC = result.TemperatureC,
+PressureHpa = result.PressureHpa,
+HumidityPercent = result.HumidityPercent
+};
+
+_dbContext.SensorReadings.Add(reading);
+await _dbContext.SaveChangesAsync(); *@
+
+
+@section Scripts {
+    <script>
+        let refreshTimer;
+
+        function fetchLatestReading() {
+            fetch('/Index?handler=LatestReading')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('temperature').textContent = data.temperature?.toFixed(1) ?? 'N/A';
+                    document.getElementById('pressure').textContent = data.pressure?.toFixed(1) ?? 'N/A';
+                    document.getElementById('humidity').textContent = data.humidity?.toFixed(1) ?? 'N/A';
+                    document.getElementById('last-updated').textContent = data.timestamp;
+                })
+                .catch(err => console.error('Failed to fetch reading:', err));
+        }
+
+        function startPolling(intervalMs) {
+            if (refreshTimer) clearInterval(refreshTimer);
+            refreshTimer = setInterval(fetchLatestReading, intervalMs);
+        }
+
+        document.getElementById('refresh-interval').addEventListener('change', function () {
+            startPolling(parseInt(this.value));
+        });
+
+        // Start polling immediately with the default selected interval
+        startPolling(parseInt(document.getElementById('refresh-interval').value));
+    </script>
+}
