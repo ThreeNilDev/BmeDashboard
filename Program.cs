@@ -6,8 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<Bme680Service>();
 builder.Services.AddHostedService<SensorLoggingService>();
+builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddDbContext<SensorDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SensorDb")));
 var app = builder.Build();

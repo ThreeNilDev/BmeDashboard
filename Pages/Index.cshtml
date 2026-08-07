@@ -4,42 +4,72 @@
     ViewData["Title"] = "BME680 Dashboard";
 }
 
-<h1>Sensor Readings</h1>
+<h1>BME680 Dashboard</h1>
+
 
 @if (Model.ErrorMessage is not null)
 {
-    <p style="color:red">@Model.ErrorMessage</p>
+    <p class="text-danger">@Model.ErrorMessage</p>
 }
 else
 {
-    <ul>
-        <li>Temperature: @(Model.TemperatureC?.ToString("F1") ?? "N/A") °C</li>
-        <li>Pressure: @(Model.PressureHpa?.ToString("F1") ?? "N/A") hPa</li>
-        <li>Humidity: @(Model.HumidityPercent?.ToString("F1") ?? "N/A") %</li>
-        <p><small>Last updated: @DateTime.Now.ToString("HH:mm:ss")</small></p>
-    </ul>
+   <div class="container">
+    <div class="row g-4">
 
-    <h1>Sensor Readings</h1>
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="card-title">Sensor Readings (Page refresh)</h2>
+                    <ul class="reading-list">
+                        <li>Temperature: <span>@(Model.TemperatureC?.ToString("F1") ?? "N/A") °C</span></li>
+                        <li>Pressure: <span>@(Model.PressureHpa?.ToString("F1") ?? "N/A") hPa</span></li>
+                        <li>Humidity: <span>@(Model.HumidityPercent?.ToString("F1") ?? "N/A") %</span></li>
+                    </ul>
+                    <p><small>Last updated: @DateTime.Now.ToString("HH:mm:ss")</small></p>
+                </div>
+            </div>
+        </div>
 
-    <ul>
-        <li>Temperature: <span id="temperature">@(Model.TemperatureC?.ToString("F1") ?? "N/A")</span> °C</li>
-        <li>Pressure: <span id="pressure">@(Model.PressureHpa?.ToString("F1") ?? "N/A")</span> hPa</li>
-        <li>Humidity: <span id="humidity">@(Model.HumidityPercent?.ToString("F1") ?? "N/A")</span> %</li>
-    </ul>
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="card-title">Sensor Readings (Close to Real-time)</h2>
+                    <ul class="reading-list">
+                        <li>Temperature: <span id="temperature">@(Model.TemperatureC?.ToString("F1") ?? "N/A")°C</span></li>
+                        <li>Pressure: <span id="pressure">@(Model.PressureHpa?.ToString("F1") ?? "N/A") hPa</span></li>
+                        <li>Humidity: <span id="humidity">@(Model.HumidityPercent?.ToString("F1") ?? "N/A")%</span></li>
+                    </ul>
+                    <p><small>Last updated: <span id="last-updated">@DateTime.Now.ToString("HH:mm:ss")</span></small></p>
+                    <div class="mb-2">
+                        <label for="refresh-interval" class="form-label">Refresh every:</label>
+                        <select id="refresh-interval" class="form-select">
+                            <option value="5000">5 seconds</option>
+                            <option value="10000" selected>10 seconds</option>
+                            <option value="30000">30 seconds</option>
+                            <option value="60000">1 minute</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <p><small>Last updated: <span id="last-updated">@DateTime.Now.ToString("HH:mm:ss")</span></small></p>
+        <div class="col-lg-4 col-md-6 col-12">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="card-title">Local Weather</h2>
+                    <ul class="reading-list">
+                        <li>Outdoor Temperature: <span>@(Model.OutdoorTemperatureC?.ToString("F1") ?? "N/A") °C</span></li>
+                        <li>Pressure: <span>@(Model.OutdoorPressureHpa?.ToString("F1") ?? "N/A") hPa</span></li>
+                        <li>Humidity: <span>@(Model.OutdoorHumidity?.ToString("F1") ?? "N/A") %</span></li>
+                        <li>Conditions: <span>@Model.WeatherDescription</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-    <label for="refresh-interval">Refresh every:</label>
-    <select id="refresh-interval">
-        <option value="5000">5 seconds</option>
-        <option value="10000" selected>10 seconds</option>
-        <option value="30000">30 seconds</option>
-        <option value="60000">1 minute</option>
-    </select>
-
-
+    </div>
+</div>
 }
-
 
 
 @* var reading = new SensorReading

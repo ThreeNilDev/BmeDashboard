@@ -7,15 +7,23 @@ namespace BmeDashboard.Pages;
 public class IndexModel : PageModel
 {
     private readonly Bme680Service _sensorService;
+    private readonly WeatherService _weatherService;
 
     public double? TemperatureC { get; set; }
     public double? PressureHpa { get; set; }
     public double? HumidityPercent { get; set; }
     public string? ErrorMessage { get; set; }
 
-    public IndexModel(Bme680Service sensorService)
+    public double? OutdoorTemperatureC { get; set; }
+    public double? OutdoorPressureHpa { get; set; }
+    public double? OutdoorHumidity { get; set; }
+    public string? WeatherDescription { get; set; }
+
+
+    public IndexModel(Bme680Service sensorService, WeatherService weatherService)
     {
         _sensorService = sensorService;
+        _weatherService = weatherService;
     }
 
     public async Task OnGetAsync()
@@ -30,6 +38,20 @@ public class IndexModel : PageModel
         catch (Exception ex)
         {
             ErrorMessage = $"Could not read sensor: {ex.Message}";
+        }
+
+
+        try
+        {
+            var weather = await _weatherService.GetCurrentWeatherAsync();
+            OutdoorTemperatureC = weather.TemperatureC;
+            OutdoorHumidity = weather.Humidity;
+            OutdoorPressureHpa = weather.Pressure;
+            WeatherDescription = weather.Description;
+        }
+        catch (Exception)
+        {
+            WeatherDescription = "Weather unavailable";
         }
     }
 

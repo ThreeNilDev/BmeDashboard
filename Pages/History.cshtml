@@ -31,68 +31,103 @@
 <canvas id="sensorChart" style="max-width: 100%; margin-top: 20px;"></canvas>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <script>
-        let chart;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script>
+    let chart;
 
-        function loadChartData(days, hourly) {
-            fetch(`/History?handler=ChartData&days=${days}&hourly=${hourly}`)
-                .then(response => response.json())
-                .then(data => {
-                    const labels = data.map(d => new Date(d.timestamp).toLocaleString());
-                    const temps = data.map(d => d.temperature);
-                    const pressures = data.map(d => d.pressure);
-                    const humidity = data.map(d => d.humidity);
+    function getTimeUnit(days) {
+    if (days <= 3) {
+        return 'hour';   // 24h or 3 days: show hourly ticks
+    } else {
+        return 'day';    // 7+ days: show daily ticks only
+    }
+}
 
-                    if (chart) {
-                        chart.data.labels = labels;
-                        chart.data.datasets[0].data = temps;
-                        chart.data.datasets[1].data = pressures;
-                        chart.data.datasets[2].data = humidity;
-                        chart.update();
-                    } else {
-                        const ctx = document.getElementById('sensorChart').getContext('2d');
-                        chart = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: labels,
-                                datasets: [
-                                    { label: 'Temperature (°C)', data: temps, borderColor: 'red', yAxisID: 'y' },
-                                    { label: 'Pressure (hPa)', data: pressures, borderColor: 'blue', yAxisID: 'y1' },
-                                    { label: 'Humidity (%)', data: humidity, borderColor: 'green', yAxisID: 'y' }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    y: { type: 'linear', position: 'left' },
-                                    y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
+    function loadChartData(days, hourly) {
+    fetch(`/History?handler=ChartData&days=${days}&hourly=${hourly}`)
+        .then(response => response.json())
+        .then(data => {
+            const labels = data.map(d => new Date(d.timestamp));
+            const temps = data.map(d => d.temperature);
+            const pressures = data.map(d => d.pressure);
+            const humidity = data.map(d => d.humidity);
+            const timeUnit = getTimeUnit(days);
+
+            if (chart) {
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = temps;
+                chart.data.datasets[1].data = pressures;
+                chart.data.datasets[2].data = humidity;
+                chart.options.scales.x.time.unit = timeUnit;
+                chart.update();
+            } else {
+                const ctx = document.getElementById('sensorChart').getContext('2d');
+
+                const existingChart = Chart.getChart(ctx);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Temperature (°C)', data: temps, borderColor: 'red', yAxisID: 'y' },
+                            { label: 'Pressure (hPa)', data: pressures, borderColor: 'blue', yAxisID: 'y1' },
+                            { label: 'Humidity (%)', data: humidity, borderColor: 'green', yAxisID: 'y' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: timeUnit,
+                                    displayFormats: {
+                                        hour: 'HH:mm',
+                                        day: 'dd/MM'
+                                    }
+                                },
+                                ticks: {
+                                    maxRotation: 0,
+                                    major: { enabled: true },
+                                    font: (context) => {
+                                        return context.tick && context.tick.major
+                                            ? { size: 12, weight: 'bold' }
+                                            : { size: 9 };
+                                    }
                                 }
-                            }
-                        });
+                            },
+                            y: { type: 'linear', position: 'left' },
+                            y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
+                        }
                     }
-                })
-                .catch(err => console.error('Failed to load chart data:', err));
-        }
+                });
+            }
+        })
+        .catch(err => console.error('Failed to load chart data:', err));
+}
 
-        function currentSettings() {
-            const days = parseInt(document.getElementById('days-select').value);
-            const hourly = document.getElementById('hourly-toggle').checked;
-            return { days, hourly };
-        }
+    function currentSettings() {
+        const days = parseInt(document.getElementById('days-select').value);
+        const hourly = document.getElementById('hourly-toggle').checked;
+        return { days, hourly };
+    }
 
-        document.getElementById('days-select').addEventListener('change', () => {
-            const { days, hourly } = currentSettings();
-            loadChartData(days, hourly);
-        });
-
-        document.getElementById('hourly-toggle').addEventListener('change', () => {
-            const { days, hourly } = currentSettings();
-            loadChartData(days, hourly);
-        });
-
-        // Load default on page load
+    document.getElementById('days-select').addEventListener('change', () => {
         const { days, hourly } = currentSettings();
         loadChartData(days, hourly);
-    </script>
+    });
+
+    document.getElementById('hourly-toggle').addEventListener('change', () => {
+        const { days, hourly } = currentSettings();
+        loadChartData(days, hourly);
+    });
+
+    const { days, hourly } = currentSettings();
+    loadChartData(days, hourly);
+</script>
 }

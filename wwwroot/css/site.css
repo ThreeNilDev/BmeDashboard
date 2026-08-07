@@ -1,31 +1,231 @@
-html {
-  font-size: 14px;
+/* ==========================================================================
+   BmeDashboard — "Station" theme
+   An instrument-panel look inspired by analogue barometers and weather
+   stations: paper-toned panels, a brass accent line, and tabular-mono
+   readouts for the numbers that matter most.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* Palette */
+  --station-paper: #f6f3ec;      /* page background */
+  --station-panel: #fffdf9;      /* card background */
+  --station-ink: #23291f;        /* primary text */
+  --station-ink-soft: #5c6355;   /* secondary text */
+  --station-brass: #a97d3c;      /* instrument-dial accent */
+  --station-brass-dark: #8a662f;
+  --station-sky: #3c6b84;        /* outdoor / weather accent */
+  --station-moss: #52713f;       /* good / normal reading */
+  --station-rust: #a5462f;       /* warning / high reading */
+  --station-line: #e3ddcd;       /* hairline borders */
+
+  /* Type */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius: 6px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
+/* ---- Reset-ish basics ---------------------------------------------------- */
+* { box-sizing: border-box; }
 
 body {
-  margin-bottom: 60px;
+  background-color: var(--station-paper);
+  color: var(--station-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--station-ink);
+  letter-spacing: -0.01em;
+  margin-top: 0;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+h1 { font-size: 2rem; }
+h2 {
+  font-size: 1.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--station-ink-soft);
+  margin-bottom: 0.25rem;
+}
+
+a { color: var(--station-sky); }
+a:hover { color: var(--station-brass-dark); }
+
+/* Visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--station-brass);
+  outline-offset: 2px;
+}
+
+/* ---- Top navigation ------------------------------------------------------
+   A slim instrument-panel strip: dark ground, a single brass hairline
+   along the bottom edge standing in for a dial rim.
+   -------------------------------------------------------------------------- */
+.navbar {
+  background-color: var(--station-ink) !important;
+  border-bottom: 2px solid var(--station-brass);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.navbar .navbar-brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--station-paper) !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* small brass "dial" mark before the brand name */
+.navbar .navbar-brand::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--station-brass);
+  box-shadow: 0 0 0 3px rgba(169, 125, 60, 0.25);
+  display: inline-block;
+}
+
+.navbar .nav-link {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(246, 243, 236, 0.65) !important;
+  padding: 0.4rem 0.9rem !important;
+  transition: color 0.15s ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: var(--station-paper) !important;
+}
+
+.navbar .nav-link.active {
+  position: relative;
+}
+
+.navbar .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  bottom: -1px;
+  height: 2px;
+  background: var(--station-brass);
+}
+
+/* ---- Cards / panels -------------------------------------------------------
+   Each reading group sits on a paper-white panel with a brass top edge —
+   the "signature" element, echoing the brass rim of a dial face.
+   -------------------------------------------------------------------------- */
+.card {
+  background-color: var(--station-panel);
+  border: 1px solid var(--station-line);
+  border-top: 3px solid var(--station-brass);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(35, 41, 31, 0.04);
+}
+
+.card-body { padding: 1.5rem; }
+
+.card-title {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--station-ink-soft);
+  margin-bottom: 1rem;
+}
+
+/* ---- Readouts --------------------------------------------------------
+   The big numbers get the monospace treatment with tabular figures,
+   like a digital barometer display.
+   -------------------------------------------------------------------------- */
+.reading-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.reading-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed var(--station-line);
+  font-size: 0.95rem;
+  color: var(--station-ink-soft);
+}
+
+.reading-list li:last-child { border-bottom: none; }
+
+.reading-list .value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--station-ink);
+}
+
+/* Accent colour hooks — apply per-reading if you want to flag a value */
+.value--sky   { color: var(--station-sky); }
+.value--moss  { color: var(--station-moss); }
+.value--rust  { color: var(--station-rust); }
+
+/* ---- Form controls --------------------------------------------------- */
+.form-select,
+select {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  border: 1px solid var(--station-line);
+  border-radius: var(--radius);
+  background-color: var(--station-panel);
+  color: var(--station-ink);
+}
+
+.form-select:focus,
+select:focus {
+  border-color: var(--station-brass);
+  box-shadow: 0 0 0 1px var(--station-brass);
+}
+
+/* ---- Utility -------------------------------------------------------- */
+.text-muted-station { color: var(--station-ink-soft); }
+
+.last-updated {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--station-ink-soft);
+  letter-spacing: 0.02em;
+}
+
+
+/* ---- Responsive grid gutters ------------------------------------------ */
+.row.g-4 > * { margin-bottom: 1.5rem; }
+
+@media (min-width: 992px) {
+  .row.g-4 > * { margin-bottom: 0; }
+}
+
+/* ---- Reduced motion ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
 }
