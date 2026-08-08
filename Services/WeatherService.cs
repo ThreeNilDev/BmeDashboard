@@ -18,8 +18,8 @@ public class WeatherService
     private readonly TimeSpan _cacheDuration;
     private const string CacheKey = "CurrentWeather";
 
-    private const double Latitude = 50.88;
-    private const double Longitude = -1.03;
+    private readonly double _latitude;// = 50.88;
+    private readonly double _longitude;// = -1.03;
     
 
     public WeatherService(HttpClient httpClient, IMemoryCache cache, IConfiguration config)
@@ -27,6 +27,8 @@ public class WeatherService
         _httpClient = httpClient;
         _cache = cache;
         _cacheDuration = TimeSpan.FromMinutes(config.GetValue<int>("Weather:CacheMinutes"));
+        _latitude = config.GetValue<double>("Weather:Latitude");
+        _longitude = config.GetValue<double>("Weather:Longitude");
     }
 
     public async Task<WeatherResult> GetCurrentWeatherAsync()
@@ -36,7 +38,7 @@ public class WeatherService
             return cachedWeather;
         }
 
-        var url = $"https://api.open-meteo.com/v1/forecast?latitude={Latitude.ToString()}&longitude={Longitude.ToString()}&current=temperature_2m,relative_humidity_2m,surface_pressure,weather_code";
+        var url = $"https://api.open-meteo.com/v1/forecast?latitude={_latitude.ToString()}&longitude={_longitude.ToString()}&current=temperature_2m,relative_humidity_2m,surface_pressure,weather_code";
 
         var response = await _httpClient.GetStringAsync(url);
         using var doc = JsonDocument.Parse(response);
