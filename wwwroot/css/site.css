@@ -98,7 +98,7 @@ input:focus-visible {
   height: 9px;
   border-radius: 50%;
   background: var(--station-brass);
-  box-shadow: 0 0 0 3px rgba(169, 125, 60, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 125, 60, 0.25);
   display: inline-block;
 }
 
@@ -107,7 +107,7 @@ input:focus-visible {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(246, 243, 236, 0.65) !important;
+  color: rgba(25, 243, 236, 0.65) !important;
   padding: 0.4rem 0.9rem !important;
   transition: color 0.15s ease;
 }
@@ -130,6 +130,17 @@ input:focus-visible {
   height: 2px;
   background: var(--station-brass);
 }
+
+.custom-toggler.navbar.toggler {
+    border-color: #fffdf9 !important;
+}
+
+.navbar-toggler {
+    border-color: white; /* outline/border color */
+    color: #ffffff;
+}
+
+
 
 /* ---- Cards / panels -------------------------------------------------------
    Each reading group sits on a paper-white panel with a brass top edge —

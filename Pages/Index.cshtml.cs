@@ -18,6 +18,7 @@ public class IndexModel : PageModel
     public double? OutdoorPressureHpa { get; set; }
     public double? OutdoorHumidity { get; set; }
     public string? WeatherDescription { get; set; }
+    public DateTime? WeatherTimestamp { get; set; } = DateTime.MinValue;
 
 
     public IndexModel(Bme680Service sensorService, WeatherService weatherService)
@@ -45,9 +46,10 @@ public class IndexModel : PageModel
         {
             var weather = await _weatherService.GetCurrentWeatherAsync();
             OutdoorTemperatureC = weather.TemperatureC;
-            OutdoorHumidity = weather.Humidity;
-            OutdoorPressureHpa = weather.Pressure;
+            OutdoorHumidity = weather.Humidity;         // was weather.HumidityPercent
+            OutdoorPressureHpa = weather.PressureHpa;
             WeatherDescription = weather.Description;
+            WeatherTimestamp = weather.Timestamp;
         }
         catch (Exception)
         {

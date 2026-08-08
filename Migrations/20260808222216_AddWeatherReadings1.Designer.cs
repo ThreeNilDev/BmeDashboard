@@ -3,6 +3,7 @@ using System;
 using BmeDashboard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BmeDashboard.Migrations
 {
     [DbContext(typeof(SensorDbContext))]
-    partial class SensorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260808222216_AddWeatherReadings1")]
+    partial class AddWeatherReadings1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");

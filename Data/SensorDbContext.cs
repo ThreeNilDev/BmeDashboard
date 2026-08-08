@@ -8,4 +8,5 @@ public class SensorDbContext : DbContext
     public SensorDbContext(DbContextOptions<SensorDbContext> options) : base(options) { }
 
     public DbSet<SensorReading> SensorReadings => Set<SensorReading>();
+    public DbSet<WeatherReading> WeatherReadings => Set<WeatherReading>();
 }

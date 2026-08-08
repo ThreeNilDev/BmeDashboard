@@ -3,6 +3,14 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace BmeDashboard.Services;
 
+public record WeatherResult(
+    double? TemperatureC,
+    double? Humidity,
+    double? PressureHpa,
+    string? Description,
+    DateTime Timestamp
+);
+
 public class WeatherService
 {
     private readonly HttpClient _httpClient;
@@ -21,14 +29,14 @@ public class WeatherService
         _cacheDuration = TimeSpan.FromMinutes(config.GetValue<int>("Weather:CacheMinutes"));
     }
 
-    public async Task<(double? TemperatureC, double? Humidity, double? Pressure, string? Description)> GetCurrentWeatherAsync()
+    public async Task<WeatherResult> GetCurrentWeatherAsync()
     {
-        if (_cache.TryGetValue(CacheKey, out (double? TemperatureC, double? Humidity, double? PressureHpa, string? Description) cachedWeather))
+        if (_cache.TryGetValue(CacheKey, out WeatherResult cachedWeather))
         {
             return cachedWeather;
         }
 
-        var url = $"https://api.open-meteo.com/v1/forecast?latitude={50.883995}&longitude={-1.013208}&current=temperature_2m,relative_humidity_2m,surface_pressure,weather_code";
+        var url = $"https://api.open-meteo.com/v1/forecast?latitude={Latitude.ToString()}&longitude={Longitude.ToString()}&current=temperature_2m,relative_humidity_2m,surface_pressure,weather_code";
 
         var response = await _httpClient.GetStringAsync(url);
         using var doc = JsonDocument.Parse(response);
@@ -39,13 +47,15 @@ public class WeatherService
         var pressure = current.GetProperty("surface_pressure").GetDouble();
         var weatherCode = current.GetProperty("weather_code").GetInt32();
         var description = WeatherCodeToDescription(weatherCode);
+        var currentDateTime = DateTime.UtcNow;
 
-        var result = (
-    TemperatureC: (double?)temp,
-    Humidity: (double?)humidity,
-    PressureHpa: (double?)pressure,
-    Description: description
-);
+        var result = new WeatherResult(
+            TemperatureC: (double?)temp,
+            Humidity: (double?)humidity,
+            PressureHpa: (double?)pressure,
+            Description: description,
+            Timestamp: currentDateTime
+        );
 
         _cache.Set(CacheKey, result, _cacheDuration);
 

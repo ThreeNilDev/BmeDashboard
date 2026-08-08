@@ -34,11 +34,11 @@ else
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="card-title">Sensor Readings (Close to Real-time)</h2>
-                    <ul class="reading-list">
-                        <li>Temperature: <span id="temperature">@(Model.TemperatureC?.ToString("F1") ?? "N/A")°C</span></li>
-                        <li>Pressure: <span id="pressure">@(Model.PressureHpa?.ToString("F1") ?? "N/A") hPa</span></li>
-                        <li>Humidity: <span id="humidity">@(Model.HumidityPercent?.ToString("F1") ?? "N/A")%</span></li>
-                    </ul>
+<ul class="reading-list">
+    <li>Temperature: <span><span id="temperature">@(Model.TemperatureC?.ToString("F1") ?? "N/A")</span> °C</span></li>
+    <li>Pressure: <span><span id="pressure">@(Model.PressureHpa?.ToString("F1") ?? "N/A")</span> hPa</span></li>
+    <li>Humidity: <span><span id="humidity">@(Model.HumidityPercent?.ToString("F1") ?? "N/A")</span> %</span></li>
+</ul>
                     <p><small>Last updated: <span id="last-updated">@DateTime.Now.ToString("HH:mm:ss")</span></small></p>
                     <div class="mb-2">
                         <label for="refresh-interval" class="form-label">Refresh every:</label>
@@ -62,7 +62,9 @@ else
                         <li>Pressure: <span>@(Model.OutdoorPressureHpa?.ToString("F1") ?? "N/A") hPa</span></li>
                         <li>Humidity: <span>@(Model.OutdoorHumidity?.ToString("F1") ?? "N/A") %</span></li>
                         <li>Conditions: <span>@Model.WeatherDescription</span></li>
+                        
                     </ul>
+                    <p><small>Last updated: @Model.WeatherTimestamp?.ToString("HH:mm:ss")</small></p>
                 </div>
             </div>
         </div>

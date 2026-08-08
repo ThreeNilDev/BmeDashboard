@@ -11,11 +11,11 @@ public class SensorLoggingService : BackgroundService
     private readonly ILogger<SensorLoggingService> _logger;
     private readonly TimeSpan _interval;
 
-    public SensorLoggingService(IServiceProvider serviceProvider, ILogger<SensorLoggingService> logger)
+    public SensorLoggingService(IServiceProvider serviceProvider, ILogger<SensorLoggingService> logger, IConfiguration config)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-        _interval = TimeSpan.FromMinutes(5); // adjust as needed
+        _interval = TimeSpan.FromMinutes(config.GetValue<int>("SensorLogging:IntervalMinutes")); // adjust as needed in app settings
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

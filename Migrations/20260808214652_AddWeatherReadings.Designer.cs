@@ -3,6 +3,7 @@ using System;
 using BmeDashboard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BmeDashboard.Migrations
 {
     [DbContext(typeof(SensorDbContext))]
-    partial class SensorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260808214652_AddWeatherReadings")]
+    partial class AddWeatherReadings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
@@ -38,33 +41,6 @@ namespace BmeDashboard.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SensorReadings");
-                });
-
-            modelBuilder.Entity("BmeDashboard.Models.WeatherReading", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double?>("HumidityPercent")
-                        .HasColumnType("REAL");
-
-                    b.Property<double?>("PressureHpa")
-                        .HasColumnType("REAL");
-
-                    b.Property<double?>("TemperatureC")
-                        .HasColumnType("REAL");
-
-                    b.Property<DateTime>("TimestampUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("WeatherDescription")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("WeatherReadings");
                 });
 #pragma warning restore 612, 618
         }
