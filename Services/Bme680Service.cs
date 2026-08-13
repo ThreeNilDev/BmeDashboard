@@ -3,9 +3,21 @@ using System.Device.I2c;
 
 namespace BmeDashboard.Services;
 
-public class Bme680Service
+public class SensorReadingResult
 {
-    public async Task<(double? TemperatureC, double? PressureHpa, double? HumidityPercent)> ReadSensorAsync()
+    public double? TemperatureC { get; init; }
+    public double? PressureHpa { get; init; }
+    public double? HumidityPercent { get; init; }
+}
+
+public interface IBme680Service
+{
+    Task<SensorReadingResult> ReadSensorAsync();
+}
+
+public class Bme680Service : IBme680Service
+{
+    public async Task<SensorReadingResult> ReadSensorAsync()
     {
         var i2cSettings = new I2cConnectionSettings(1, Bme680.DefaultI2cAddress);
         using var i2cDevice = I2cDevice.Create(i2cSettings);
@@ -13,10 +25,11 @@ public class Bme680Service
 
         var readResult = await bme680.ReadAsync();
 
-        return (
-            readResult.Temperature?.DegreesCelsius,
-            readResult.Pressure?.Hectopascals,
-            readResult.Humidity?.Percent
-        );
+        return new SensorReadingResult
+        {
+            TemperatureC = readResult.Temperature?.DegreesCelsius,
+            PressureHpa = readResult.Pressure?.Hectopascals,
+            HumidityPercent = readResult.Humidity?.Percent
+        };
     }
 }

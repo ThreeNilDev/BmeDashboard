@@ -15,7 +15,14 @@ public class SensorLoggingService : BackgroundService
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-        _interval = TimeSpan.FromMinutes(config.GetValue<int>("SensorLogging:IntervalMinutes")); // adjust as needed in app settings
+
+        var intervalMinutes = config.GetValue<int?>("SensorLogging:IntervalMinutes")
+            ?? throw new InvalidOperationException("SensorLogging:IntervalMinutes is not configured.");
+
+        if (intervalMinutes <= 0)
+            throw new InvalidOperationException("SensorLogging:IntervalMinutes must be greater than zero.");
+
+        _interval = TimeSpan.FromMinutes(intervalMinutes);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,7 +32,7 @@ public class SensorLoggingService : BackgroundService
             try
             {
                 using var scope = _serviceProvider.CreateScope();
-                var sensorService = scope.ServiceProvider.GetRequiredService<Bme680Service>();
+                var sensorService = scope.ServiceProvider.GetRequiredService<IBme680Service>();
                 var db = scope.ServiceProvider.GetRequiredService<SensorDbContext>();
 
                 var result = await sensorService.ReadSensorAsync();

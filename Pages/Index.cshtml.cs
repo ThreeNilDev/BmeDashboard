@@ -6,7 +6,7 @@ namespace BmeDashboard.Pages;
 
 public class IndexModel : PageModel
 {
-    private readonly Bme680Service _sensorService;
+    private readonly IBme680Service _sensorService;
     private readonly WeatherService _weatherService;
 
     public double? TemperatureC { get; set; }
@@ -21,7 +21,7 @@ public class IndexModel : PageModel
     public DateTime? WeatherTimestamp { get; set; } = DateTime.MinValue;
 
 
-    public IndexModel(Bme680Service sensorService, WeatherService weatherService)
+    public IndexModel(IBme680Service sensorService, WeatherService weatherService)
     {
         _sensorService = sensorService;
         _weatherService = weatherService;

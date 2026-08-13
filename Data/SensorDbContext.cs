@@ -9,4 +9,12 @@ public class SensorDbContext : DbContext
 
     public DbSet<SensorReading> SensorReadings => Set<SensorReading>();
     public DbSet<WeatherReading> WeatherReadings => Set<WeatherReading>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<WeatherReading>()
+            .HasIndex(w => w.TimestampUtc);
+    }
 }

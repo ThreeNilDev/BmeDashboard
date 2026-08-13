@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<Bme680Service>();
+builder.Services.AddSingleton<IBme680Service, Bme680Service>();
 builder.Services.AddHostedService<SensorLoggingService>();
 builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddHostedService<WeatherLoggingService>();
@@ -19,6 +19,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SensorDbContext>();
     db.Database.Migrate();
+    db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
 }
 
 

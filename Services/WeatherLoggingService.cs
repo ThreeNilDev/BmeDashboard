@@ -14,7 +14,14 @@ namespace BmeDashboard.Services
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
-            _interval = TimeSpan.FromMinutes(config.GetValue<int>("WeatherLogging:IntervalMinutes"));
+
+            var intervalMinutes = config.GetValue<int?>("WeatherLogging:IntervalMinutes")
+    ?? throw new InvalidOperationException("WeatherLogging:IntervalMinutes is not configured.");
+
+            if (intervalMinutes <= 0)
+                throw new InvalidOperationException("WeatherLogging:IntervalMinutes must be greater than zero.");
+
+            _interval = TimeSpan.FromMinutes(intervalMinutes);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
