@@ -3,24 +3,29 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace BmeDashboard.Services;
 
-public record WeatherResult(
-    double? TemperatureC,
-    double? Humidity,
-    double? PressureHpa,
-    string? Description,
-    DateTime Timestamp
-);
+public class WeatherReadingResult
+{
+    public double? TemperatureC { get; init; }
+    public double? HumidityPercent { get; init; }
+    public double? PressureHpa { get; init; }
+    public string? Description { get; init; }
+    public DateTime Timestamp { get; init; }
+}
 
-public class WeatherService
+public interface IWeatherService
+{
+    Task<WeatherReadingResult> GetCurrentWeatherAsync();
+}
+
+public class WeatherService : IWeatherService
 {
     private readonly HttpClient _httpClient;
     private readonly IMemoryCache _cache;
     private readonly TimeSpan _cacheDuration;
     private const string CacheKey = "CurrentWeather";
 
-    private readonly double _latitude;// = 50.88;
-    private readonly double _longitude;// = -1.03;
-    
+    private readonly double _latitude;
+    private readonly double _longitude;
 
     public WeatherService(HttpClient httpClient, IMemoryCache cache, IConfiguration config)
     {
@@ -31,33 +36,43 @@ public class WeatherService
         _longitude = config.GetValue<double>("Weather:Longitude");
     }
 
-    public async Task<WeatherResult> GetCurrentWeatherAsync()
+    public async Task<WeatherReadingResult> GetCurrentWeatherAsync()
     {
-        if (_cache.TryGetValue(CacheKey, out WeatherResult cachedWeather))
+        if (_cache.TryGetValue(CacheKey, out WeatherReadingResult? cachedWeather) && cachedWeather is not null)
         {
             return cachedWeather;
         }
 
-        var url = $"https://api.open-meteo.com/v1/forecast?latitude={_latitude.ToString()}&longitude={_longitude.ToString()}&current=temperature_2m,relative_humidity_2m,surface_pressure,weather_code";
+        var url = $"https://api.open-meteo.com/v1/forecast?latitude={_latitude}&longitude={_longitude}&current=temperature_2m,relative_humidity_2m,pressure_msl,weather_code";
 
         var response = await _httpClient.GetStringAsync(url);
         using var doc = JsonDocument.Parse(response);
         var current = doc.RootElement.GetProperty("current");
 
-        var temp = current.GetProperty("temperature_2m").GetDouble();
-        var humidity = current.GetProperty("relative_humidity_2m").GetDouble();
-        var pressure = current.GetProperty("surface_pressure").GetDouble();
-        var weatherCode = current.GetProperty("weather_code").GetInt32();
-        var description = WeatherCodeToDescription(weatherCode);
-        var currentDateTime = DateTime.UtcNow;
+        double? temperatureC = current.TryGetProperty("temperature_2m", out var tempProp)
+            ? tempProp.GetDouble()
+            : null;
 
-        var result = new WeatherResult(
-            TemperatureC: (double?)temp,
-            Humidity: (double?)humidity,
-            PressureHpa: (double?)pressure,
-            Description: description,
-            Timestamp: currentDateTime
-        );
+        double? humidityPercent = current.TryGetProperty("relative_humidity_2m", out var humidityProp)
+            ? humidityProp.GetDouble()
+            : null;
+
+        double? pressureHpa = current.TryGetProperty("pressure_msl", out var pressureProp)
+            ? pressureProp.GetDouble()
+            : null;
+
+        string? description = current.TryGetProperty("weather_code", out var codeProp)
+            ? WeatherCodeToDescription(codeProp.GetInt32())
+            : null;
+
+        var result = new WeatherReadingResult
+        {
+            TemperatureC = temperatureC,
+            HumidityPercent = humidityPercent,
+            PressureHpa = pressureHpa,
+            Description = description,
+            Timestamp = DateTime.UtcNow
+        };
 
         _cache.Set(CacheKey, result, _cacheDuration);
 

@@ -9,7 +9,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IBme680Service, Bme680Service>();
 builder.Services.AddHostedService<SensorLoggingService>();
-builder.Services.AddHttpClient<WeatherService>();
+builder.Services.AddHttpClient<IWeatherService, WeatherService>();
 builder.Services.AddHostedService<WeatherLoggingService>();
 builder.Services.AddDbContext<SensorDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SensorDb")));

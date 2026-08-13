@@ -24,6 +24,9 @@ else
                         <li>Temperature: <span>@(Model.TemperatureC?.ToString("F1") ?? "N/A") °C</span></li>
                         <li>Pressure: <span>@(Model.PressureHpa?.ToString("F1") ?? "N/A") hPa</span></li>
                         <li>Humidity: <span>@(Model.HumidityPercent?.ToString("F1") ?? "N/A") %</span></li>
+                        <li>Dew Point: <span>@(Model.DewpointC?.ToString("F1") ?? "N/A") °C</span></li>
+                        <li>Heat Index: <span>@(Model.HeatIndexC?.ToString("F1") ?? "N/A") °C</span></li>
+                        <li>Altitude: <span>@(Model.AltitudeMeters?.ToString("F1") ?? "N/A") m</span></li>
                     </ul>
                     <p><small>Last updated: @DateTime.Now.ToString("HH:mm:ss")</small></p>
                 </div>

@@ -7,12 +7,16 @@ namespace BmeDashboard.Pages;
 public class IndexModel : PageModel
 {
     private readonly IBme680Service _sensorService;
-    private readonly WeatherService _weatherService;
+    private readonly IWeatherService _weatherService;
 
     public double? TemperatureC { get; set; }
     public double? PressureHpa { get; set; }
     public double? HumidityPercent { get; set; }
     public string? ErrorMessage { get; set; }
+    public double? DewpointC { get; set; }
+    public double? HeatIndexC { get; set; }
+    public double? AltitudeMeters { get; set; }
+
 
     public double? OutdoorTemperatureC { get; set; }
     public double? OutdoorPressureHpa { get; set; }
@@ -21,7 +25,7 @@ public class IndexModel : PageModel
     public DateTime? WeatherTimestamp { get; set; } = DateTime.MinValue;
 
 
-    public IndexModel(IBme680Service sensorService, WeatherService weatherService)
+    public IndexModel(IBme680Service sensorService, IWeatherService weatherService)
     {
         _sensorService = sensorService;
         _weatherService = weatherService;
@@ -35,6 +39,9 @@ public class IndexModel : PageModel
             TemperatureC = reading.TemperatureC;
             PressureHpa = reading.PressureHpa;
             HumidityPercent = reading.HumidityPercent;
+            DewpointC = reading.DewpointC;
+            HeatIndexC = reading.HeatIndexC;
+            AltitudeMeters = reading.AltitudeMeters;
         }
         catch (Exception ex)
         {
@@ -46,7 +53,7 @@ public class IndexModel : PageModel
         {
             var weather = await _weatherService.GetCurrentWeatherAsync();
             OutdoorTemperatureC = weather.TemperatureC;
-            OutdoorHumidity = weather.Humidity;         // was weather.HumidityPercent
+            OutdoorHumidity = weather.HumidityPercent;
             OutdoorPressureHpa = weather.PressureHpa;
             WeatherDescription = weather.Description;
             WeatherTimestamp = weather.Timestamp;
@@ -65,7 +72,11 @@ public class IndexModel : PageModel
             temperature = reading.TemperatureC,
             pressure = reading.PressureHpa,
             humidity = reading.HumidityPercent,
-            timestamp = DateTime.Now.ToString("HH:mm:ss")
+            timestamp = DateTime.Now.ToString("HH:mm:ss"),
+            dewpoint = reading.DewpointC,
+            heatIndex = reading.HeatIndexC,
+            altitude = reading.AltitudeMeters
+
         });
     }
 }

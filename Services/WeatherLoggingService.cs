@@ -32,7 +32,7 @@ namespace BmeDashboard.Services
                 {
                     using var scope = _serviceProvider.CreateScope();
                     var db = scope.ServiceProvider.GetRequiredService<SensorDbContext>();
-                    var weatherService = scope.ServiceProvider.GetRequiredService<WeatherService>();
+                    var weatherService = scope.ServiceProvider.GetRequiredService<IWeatherService>();
 
                     var weatherData = await weatherService.GetCurrentWeatherAsync();
 
@@ -41,7 +41,7 @@ namespace BmeDashboard.Services
                         TimestampUtc = weatherData.Timestamp,
                         TemperatureC = weatherData.TemperatureC,
                         PressureHpa = weatherData.PressureHpa,
-                        HumidityPercent = weatherData.Humidity,
+                        HumidityPercent = weatherData.HumidityPercent,
                         WeatherDescription = weatherData.Description
                     });
 
