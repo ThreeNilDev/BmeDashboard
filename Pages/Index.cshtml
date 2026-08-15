@@ -21,12 +21,12 @@ else
                 <div class="card-body">
                     <h2 class="card-title">Sensor Readings (Page refresh)</h2>
                     <ul class="reading-list">
-                        <li>Temperature: <span>@(Model.TemperatureC?.ToString("F1") ?? "N/A") °C</span></li>
-                        <li>Pressure: <span>@(Model.PressureHpa?.ToString("F1") ?? "N/A") hPa</span></li>
-                        <li>Humidity: <span>@(Model.HumidityPercent?.ToString("F1") ?? "N/A") %</span></li>
-                        <li>Dew Point: <span>@(Model.DewpointC?.ToString("F1") ?? "N/A") °C</span></li>
-                        <li>Heat Index: <span>@(Model.HeatIndexC?.ToString("F1") ?? "N/A") °C</span></li>
-                        <li>Altitude: <span>@(Model.AltitudeMeters?.ToString("F1") ?? "N/A") m</span></li>
+                        <li><span class="lookup-label" data-term="Temperature">Temperature: </span><span>@(Model.TemperatureC?.ToString("F1") ?? "N/A") °C</span></li>
+                        <li><span class="lookup-label" data-term="Pressure">Pressure: </span><span>@(Model.PressureHpa?.ToString("F1") ?? "N/A") hPa</span></li>
+                        <li><span class="lookup-label" data-term="Humidity">Humidity: </span><span>@(Model.HumidityPercent?.ToString("F1") ?? "N/A") %</span></li>
+                        <li><span class="lookup-label" data-term="Dew Point">Dew Point: </span><span>@(Model.DewpointC?.ToString("F1") ?? "N/A") °C</span></li>
+                        <li><span class="lookup-label" data-term="Heat Index">Heat Index: </span><span>@(Model.HeatIndexC?.ToString("F1") ?? "N/A") °C</span></li>
+                        <li><span class="lookup-label" data-term="Altitude">Altitude: </span><span>@(Model.AltitudeMeters?.ToString("F1") ?? "N/A") m</span></li>
                     </ul>
                     <p><small>Last updated: @DateTime.Now.ToString("HH:mm:ss")</small></p>
                 </div>
@@ -116,5 +116,48 @@ await _dbContext.SaveChangesAsync(); *@
 
         // Start polling immediately with the default selected interval
         startPolling(parseInt(document.getElementById('refresh-interval').value));
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const drawer = document.getElementById('searchDrawer');
+            const drawerTitle = document.getElementById('drawerTitle');
+            const drawerDescription = document.getElementById('drawerDescription');
+            const drawerLink = document.getElementById('drawerLink');
+
+            // Click listener for labels
+            document.querySelectorAll('.lookup-label').forEach(label => {
+                label.addEventListener('click', async function(e) {
+                    e.stopPropagation(); // Avoid triggering immediate body closures
+                    const term = this.getAttribute('data-term');
+
+                    // Display initial header updates
+                    drawerTitle.textContent = term;
+                    drawerDescription.textContent = "Loading context info from Wikipedia...";
+                    drawerLink.style.display = "none";
+
+                    // Reveal the bottom drawer container
+                    drawer.classList.add('open');
+
+                    try {
+                        // Request summary definitions asynchronously using standard endpoints
+                        const response = await fetch(`https://wikipedia.org{encodeURIComponent(term)}`);
+                        if (!response.ok) throw new Error("Data unavailable");
+
+                        const data = await response.json();
+                        drawerDescription.textContent = data.extract;
+                        drawerLink.href = data.content_urls.desktop.page;
+                        drawerLink.style.display = "inline-block";
+                    } catch (err) {
+                        drawerDescription.textContent = `Could not fetch a live definition for "${term}". Please ensure you are connected to the network.`;
+                    }
+                });
+            });
+
+            // Standard dismiss layer: Close when user clicks anywhere outside the active panel
+            document.addEventListener('click', function(e) {
+                if (!drawer.contains(e.target)) {
+                    drawer.classList.remove('open');
+                }
+            });
+        });
     </script>
 }

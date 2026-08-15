@@ -140,6 +140,92 @@ input:focus-visible {
     color: #ffffff;
 }
 
+/* Bottom Search Drawer Base Layout */
+.bottom-drawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 45vh;
+    background: #ffffff;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(100%); /* Initially hidden below viewport */
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 9999;
+    padding: 16px 24px 32px 24px;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+    /* Open State triggered via JS */
+    .bottom-drawer.open {
+        transform: translateY(0);
+    }
+
+/* Top Grab Handle Drag Indicator */
+.drawer-handle {
+    width: 36px;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    margin: 0 auto 16px auto;
+}
+
+/* Internal Layout styling mimicking Google Search */
+.drawer-header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.g-logo {
+    color: #4285F4;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#drawerTitle {
+    margin: 0;
+    font-size: 18px;
+    color: #202124;
+    font-weight: 500;
+}
+
+#drawerDescription {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #3c4043;
+    margin-bottom: 18px;
+}
+
+.drawer-btn {
+    display: inline-block;
+    color: #1a73e8;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #dadce0;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+    .drawer-btn:hover {
+        background-color: #f8f9fa;
+    }
+
+/* Make your dashboard text labels interactive pointers */
+.lookup-label {
+    cursor: pointer;
+    text-decoration: underline dotted #9aa0a6;
+}
+
+    .lookup-label:hover {
+        color: #1a73e8;
+    }
+
 
 
 /* ---- Cards / panels -------------------------------------------------------

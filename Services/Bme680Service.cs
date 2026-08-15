@@ -1,8 +1,9 @@
 ﻿using Iot.Device.Bmxx80;
 using Iot.Device.Common;
+using Microsoft.Extensions.Caching.Memory;
 using System.Device.I2c;
 using UnitsNet;
-
+ 
 namespace BmeDashboard.Services;
 
 public class SensorReadingResult
@@ -23,10 +24,17 @@ public interface IBme680Service
 public class Bme680Service : IBme680Service
 {
     private readonly IWeatherService _weatherService;
+    private readonly IMemoryCache _cache;
+    private readonly TimeSpan _cacheDuration;
+    private static readonly TimeSpan FallbackRetryDuration = TimeSpan.FromMinutes(1);
+    private const string SeaLevelPressureCacheKey = "SeaLevelPressure";
 
-    public Bme680Service(IWeatherService weatherService)
+    public Bme680Service(IWeatherService weatherService, IMemoryCache cache, IConfiguration config)
     {
         _weatherService = weatherService;
+        _cache = cache;
+        // Reuses the weather cache lifetime, since sea-level pressure is derived from the same data.
+        _cacheDuration = TimeSpan.FromMinutes(config.GetValue<int>("Weather:CacheMinutes"));
     }
 
     public async Task<SensorReadingResult> ReadSensorAsync()
@@ -40,17 +48,29 @@ public class Bme680Service : IBme680Service
         double? altitudeMeters = null;
         if (readResult.Pressure.HasValue && readResult.Temperature.HasValue)
         {
-            Pressure seaLevelPressure;
-            try
+            if (!_cache.TryGetValue(SeaLevelPressureCacheKey, out Pressure seaLevelPressure))
             {
-                var weather = await _weatherService.GetCurrentWeatherAsync();
-                seaLevelPressure = weather.PressureHpa.HasValue
-                    ? Pressure.FromHectopascals(weather.PressureHpa.Value)
-                    : Pressure.FromHectopascals(1013.25); // fallback if API returned no pressure
-            }
-            catch
-            {
-                seaLevelPressure = Pressure.FromHectopascals(1013.25); // fallback if API call failed
+                var cacheDuration = _cacheDuration;
+                try
+                {
+                    var weather = await _weatherService.GetCurrentWeatherAsync();
+                    if (weather.PressureHpa.HasValue)
+                    {
+                        seaLevelPressure = Pressure.FromHectopascals(weather.PressureHpa.Value);
+                    }
+                    else
+                    {
+                        seaLevelPressure = Pressure.FromHectopascals(1013.25); // fallback if API returned no pressure
+                        cacheDuration = FallbackRetryDuration; // retry sooner rather than waiting a full cache cycle
+                    }
+                }
+                catch
+                {
+                    seaLevelPressure = Pressure.FromHectopascals(1013.25); // fallback if API call failed
+                    cacheDuration = FallbackRetryDuration; // retry sooner rather than waiting a full cache cycle
+                }
+
+                _cache.Set(SeaLevelPressureCacheKey, seaLevelPressure, cacheDuration);
             }
 
             altitudeMeters = WeatherHelper

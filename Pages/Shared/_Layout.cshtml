@@ -54,6 +54,19 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
+    <!-- Custom Bottom Look-up Drawer Overlay -->
+    <div id="searchDrawer" class="bottom-drawer">
+        <div class="drawer-handle"></div>
+        <div class="drawer-content">
+            <div class="drawer-header-row">
+                <span class="g-logo">G</span>
+                <h3 id="drawerTitle">Measurement</h3>
+            </div>
+            <p id="drawerDescription">Loading definition...</p>
+            <a id="drawerLink" href="#" target="_blank" class="drawer-btn">Read full article on Wikipedia</a>
+        </div>
+    </div>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
