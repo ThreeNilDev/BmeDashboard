@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IBme680Service, Bme680Service>();
 builder.Services.AddHostedService<SensorLoggingService>();
 builder.Services.AddHttpClient<IWeatherService, WeatherService>();
